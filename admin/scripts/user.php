@@ -24,7 +24,7 @@ function createUser($user_data)
 {
 
     if (empty($user_data['username']) || isUsernameExists($user_data['username'])) {
-        return 'Username is invalid!!';
+        return 'invalid username!';
     }
 
     ## 1. Run the proper SQL query to insert user
@@ -73,41 +73,49 @@ function getSingleUser($id)
         return false;
     }
 }
-
-function getAllUsers(){
-    $pdo = Database::getInstance()->getConnection();
-
-    $get_user_query = 'SELECT * FROM tbl_user';
-    $users = $pdo->query($get_user_query);
-
-    if($users){
-        return $users;
-    }else{
-        return false;
-    }
-}
-
-function deleteUser($user_id){
-    $pdo = Database::getInstance()->getConnection();
-    $delete_user_query = 'DELETE FROM tbl_user WHERE user_id = :id';
-    $delete_user_set = $pdo->prepare($delete_user_query);
-    $delete_user_result = $delete_user_set->execute(
-        array(
-            ':id'=>$user_id
-        )
-    );
-
-    if($delete_user_result && $delete_user_set->rowCount()>0){
-        redirect_to('admin_deleteuser.php');
-    }else{
-        return false;
-    }
-}
-
+ ///////////////////////////////
 function editUser($user_data)
 {
+
+    if(empty($user_data['username']) || isUsernameExists($user_data['username'])){
+        return 'invalid Username!';
+    }
+
+    $pdo = Database::getInstance()->getConnection();
+
+    ///////////////////////////////
+
+    #TODO: to update user file follow the lines!!
+
+    $update_user_query = 'UPDATE tbl_user SET user_fname = :fname = :fname, user_name=:username, user_pass=:password, user_email=:email,user_level=:level WHERE user_id=:id';
+    
+    $update_user_set = $pdo->prepare($update_user_query);
+
+    $update_user_result = $update_user_set->execute(
+        array(
+            ':fname'    => $user_data['fname'],
+            ':username' => $user_data['username'],
+            ':password' => $user_data['password'],
+            ':email'    => $user_data['email'],
+            ':level'    => $user_data['user_level'],
+            ':id'       => $user_data['id'],
+        )
+        );
+
+        $_SESSION['user_level'] = $user_data['user_level'];
+
+        session_destroy();
+
+        redirect_to('admin_login.php');
+
+}
+
+function admin_editAllUser($user_data)
+{
+    $current = $_SESSION['current'];
+
     if (empty($user_data['username']) || isUsernameExists($user_data['username'])) {
-        return 'Username is invalid!!';
+        return 'invalid username!';
     }
 
     $pdo = Database::getInstance()->getConnection();
@@ -125,15 +133,10 @@ function editUser($user_data)
             ':id'       => $user_data['id'],
         )
     );
-    // $update_user_set->debugDumpParams();
-    // exit;
 
-    if ($update_user_result) {
-        $_SESSION['user_level'] = $user_data['user_level'];
-        redirect_to('index.php');
-    } else {
-        return 'Guess you got canned....';
-    }
+
+    $_SESSION['user_level'] = $user_data['user_level'];
+    redirect_to('index.php');
 }
 
 function isCurrentUserAdminAbove()
