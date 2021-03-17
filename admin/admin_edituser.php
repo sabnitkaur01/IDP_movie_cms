@@ -20,6 +20,7 @@ if (isset($_POST['submit'])) {
     );
 
     $message = editUser($data);
+    echo $data."<pre>";
 }
 ?>
 
@@ -53,8 +54,8 @@ if (isset($_POST['submit'])) {
                 <label for="user_level">User Level</label>
                 <select id="user_level" name="user_level">
                     <?php $user_level_map = getUserLevelMap();
-foreach ($user_level_map as $val => $label): ?>
-                    <option value="<?php echo $val; ?>" <?php echo ((int) $user_info['user_level'] === $val) ? 'selected' : ''; ?>><?php echo $label; ?>
+                foreach ($user_level_map as $val => $label): ?>
+                    <option value="<?php echo $val; ?>" <?php echo ($val === (int) $user_info['user_level']) ? 'selected' : ''; ?>><?php echo $label; ?>
                     </option>
                     <?php endforeach;?>
                 </select><br><br>
